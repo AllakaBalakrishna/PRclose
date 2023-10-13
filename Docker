@@ -17,8 +17,7 @@ RUN npm install
 COPY . .
 
 # Build your application (modify this according to your specific build process)
-ARG ENV=prod    # default value
-RUN npm run build-${ENV}
+RUN npm run build
 
 # Start a new stage for the final production image
 FROM nginx:1.21
