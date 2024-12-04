@@ -1,7 +1,65 @@
 steps:
-- name: 'gcr.io/kaniko-project/executor:latest'
+
+ - name: 'gcr.io/cloud-builders/git'
+
+  entrypoint: 'bash'
+
+  #env :
+
+  # - "INST=${_INST}"
+
+  #  - "VERSION=${_VERSION}"
+
   args:
-  - --destination=${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE}
-  - --cache=true
-  - --cache-ttl=XXh
-  - --substitutions=ENV=$_ENV
+
+   - '-cx'
+
+   - |
+
+    apt -qq update && apt -qq install unzip jq
+
+    git clone --depth=1 https://github.com/tfutils/tfenv.git ./.tfenv
+
+    TFENV_CURL_OUTPUT=0 /workspace/.tfenv/bin/tfenv use 1.2.3 | grep Default
+
+    cp /workspace/.tfenv/versions/1.2.3/terraform /usr/local/bin/
+
+    INST=$(gcloud compute instance-templates list | grep pbs-inst | cut -d' ' -f1)
+
+    echo "Instance is ${INST}"
+
+    echo "Instance ${_INST}"
+
+    _VERSION=$(gcloud compute instance-templates describe ${_INST} | grep pbs-image | sed 's/.*pbs-\(.*\)-[0-9]*"/\1/')
+
+    echo ${_VERSION}
+
+    ls -la
+
+    tar xfz ps-gcp-multiparty-coordinator-${_VERSION}.tgz
+
+    # ls -la
+
+    # echo "files details"
+
+    # chmod +x *.sh
+
+
+
+     
+
+options:
+
+ logging: CLOUD_LOGGING_ONLY
+
+ automapSubstitutions: true
+
+substitutions:
+
+ _USER: Google Cloud
+
+ _ENVIRONMENT: "Environment"
+
+ _INST: Fetch Instance
+
+ # _VERSION: PBS Version
